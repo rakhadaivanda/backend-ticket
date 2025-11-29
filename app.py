@@ -12,7 +12,7 @@ from io import BytesIO
 from functools import wraps
 from dotenv import load_dotenv
 # Impor yang dikurangi sesuai permintaan
-from utils import make_signature, verify_signature, create_jwt, decode_jwt
+from utils import create_jwt, decode_jwt # <--- make_signature, verify_signature sudah dihapus
 from pdf_ticket import generate_ticket_pdf 
 
 # ---------------- ENV CONFIG ----------------
