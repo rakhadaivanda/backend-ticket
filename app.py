@@ -11,8 +11,6 @@ from io import BytesIO
 from functools import wraps
 from dotenv import load_dotenv
 from utils import create_jwt, decode_jwt
-# Menghapus make_signature, verify_signature (karena tidak ada di utils)
-from pdf_ticket import generate_ticket_pdf
 
 # ---------------- ENV CONFIG ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
