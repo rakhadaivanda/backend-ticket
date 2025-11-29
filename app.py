@@ -6,14 +6,13 @@ import base64
 import time
 import uuid
 from flask import Flask, request, jsonify, send_file, send_from_directory
-# Hanya impor firestore, menghapus storage karena tidak dipakai
-from firebase_admin import credentials, firestore, initialize_app 
+from firebase_admin import credentials, firestore, initialize_app
 from io import BytesIO
 from functools import wraps
 from dotenv import load_dotenv
-# Impor yang dikurangi sesuai permintaan
-from utils import create_jwt, decode_jwt # <--- make_signature, verify_signature sudah dihapus
-from pdf_ticket import generate_ticket_pdf 
+from utils import create_jwt, decode_jwt
+# Menghapus make_signature, verify_signature (karena tidak ada di utils)
+from pdf_ticket import generate_ticket_pdf
 
 # ---------------- ENV CONFIG ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,22 +31,23 @@ FIREBASE_SERVICE_ACCOUNT = os.getenv('FIREBASE_SERVICE_ACCOUNT')
 firebase_initialized = False
 try:
     if FIREBASE_SERVICE_ACCOUNT:
-        # PERBAIKAN KRITIS: Mendeteksi apakah nilai adalah string JSON (Railway) atau path file (Lokal)
+        # PERBAIKAN SINKRONISASI: Mendeteksi apakah nilai adalah string JSON (Cloud) atau path file (Lokal)
         if FIREBASE_SERVICE_ACCOUNT.startswith('{'):
-            # Memuat string JSON dari environment variable (untuk cloud deployment)
+            # Kasus 1: Menggunakan string JSON dari environment variable (untuk cloud deployment)
             cred = credentials.Certificate(json.loads(FIREBASE_SERVICE_ACCOUNT))
             print("✅ Firebase initialized using JSON string (Cloud/Railway).")
         else:
-            # Asumsi path file lokal
+            # Kasus 2: Asumsi path file lokal
             cred = credentials.Certificate(os.path.join(BASE_DIR, FIREBASE_SERVICE_ACCOUNT))
             print("✅ Firebase initialized using local file path.")
             
         initialize_app(cred)
         db = firestore.client()
         firebase_initialized = True
-        print("✅ Firebase initialized (Firestore only).")
+    else:
+        print("⚠️ FIREBASE_SERVICE_ACCOUNT environment variable is not set. Firestore disabled.")
 except Exception as e:
-    print("⚠️ Firebase init failed:", e)
+    print(f"⚠️ Firebase init failed: {e}")
     firebase_initialized = False
 
 FRONTEND_DIR = os.path.join(BASE_DIR, '..', 'frontend')
