@@ -35,19 +35,16 @@ try:
         if FIREBASE_SERVICE_ACCOUNT.startswith('{'):
             # Kasus 1: Menggunakan string JSON dari environment variable (untuk cloud deployment)
             cred = credentials.Certificate(json.loads(FIREBASE_SERVICE_ACCOUNT))
-            print("✅ Firebase initialized using JSON string (Cloud/Railway).")
         else:
             # Kasus 2: Asumsi path file lokal
             cred = credentials.Certificate(os.path.join(BASE_DIR, FIREBASE_SERVICE_ACCOUNT))
-            print("✅ Firebase initialized using local file path.")
             
         initialize_app(cred)
         db = firestore.client()
         firebase_initialized = True
     else:
-        print("⚠️ FIREBASE_SERVICE_ACCOUNT environment variable is not set. Firestore disabled.")
+        pass
 except Exception as e:
-    print(f"⚠️ Firebase init failed: {e}")
     firebase_initialized = False
 
 FRONTEND_DIR = os.path.join(BASE_DIR, '..', 'frontend')
@@ -259,8 +256,6 @@ def cancel_ticket(order_id):
     return jsonify({'message': 'cancelled'}), 200
 
 # ---------------- DOWNLOAD PDF ----------------
-# Endpoint ini dibiarkan sebagai placeholder. 
-# Jika Anda mengaktifkannya, Anda harus memastikan pdf_ticket.py ada di folder Anda.
 @app.route('/api/tickets/<order_id>/pdf', methods=['GET'])
 @require_auth
 def download_ticket_pdf(order_id):
@@ -275,11 +270,8 @@ def download_ticket_pdf(order_id):
     if order['user_email'] != request.user['email']:
         return jsonify({'error': 'forbidden'}), 403
 
-    # KARENA pdf_ticket.py TELAH DIHAPUS, fungsi ini akan menimbulkan error.
-    # Anda harus menghapus seluruh fungsi ini jika pdf_ticket.py sudah dihapus.
-    # Namun, karena ini adalah kode terakhir yang diminta, saya mempertahankan strukturnya, 
-    # tetapi sarankan untuk menghapus fungsi ini sepenuhnya.
-    return jsonify({'error': 'PDF generation disabled (pdf_ticket.py file missing)'}), 501
+    # FUNGSI PDF DINONAKTIFKAN, GANTI DENGAN RESPONS ERROR:
+    return jsonify({'error': 'PDF generation disabled (Feature removed)'}), 501
 
 
 # ---------------- EVENTS LIST ----------------
@@ -301,7 +293,3 @@ def history():
     except Exception:
         orders = []
     return jsonify({'tickets': orders}), 200
-
-# ---------------- MAIN ----------------
-if __name__ == '__main__':
-    app.run(debug=True, port=5000, use_reloader=False)
